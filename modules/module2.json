@@ -1,0 +1,21 @@
+{
+  "info": {
+    "Module Name": "Sensor Interface Board",
+    "Model": "SIB-340",
+    "Version": "2.1.0",
+    "Manufacturer": "Euphonic Systems",
+    "Last Updated": "2025-11-08"
+  },
+  "specs": {
+    "Supported Sensors": "Temperature, Humidity, Pressure",
+    "ADC Resolution": "16-bit",
+    "Communication": "I²C / SPI / UART",
+    "Power Consumption": "180 mW (typical)",
+    "Sampling Rate": "up to 1 kHz"
+  },
+  "keys": {
+    "JP1": "Sensor Bus Selector",
+    "JP2": "Calibration Enable",
+    "LED2": "Data Activity (Blinking: Active, Off: Idle)"
+  }
+}

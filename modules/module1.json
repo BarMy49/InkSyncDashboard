@@ -1,0 +1,21 @@
+{
+  "info": {
+    "Module Name": "Power Control Unit",
+    "Model": "PCU-120A",
+    "Version": "1.4.3",
+    "Manufacturer": "Euphonic Systems",
+    "Last Updated": "2025-11-08"
+  },
+  "specs": {
+    "Input Voltage": "12V DC ±10%",
+    "Output Voltage": "5V, 3.3V",
+    "Current Capacity": "2A max per channel",
+    "Operating Temp": "-20°C to +70°C",
+    "Efficiency": "92%"
+  },
+  "keys": {
+    "SW1": "Main Power Toggle",
+    "SW2": "Overcurrent Reset",
+    "LED1": "Status Indicator (Green: OK, Red: Fault)"
+  }
+}
