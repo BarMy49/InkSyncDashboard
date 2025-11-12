@@ -2,32 +2,36 @@
 
 <div class="container">
     {% include 'sidebar.html' with context %}
+
     <main class="content">
-        <div class="events-header">
-            <h2>Events</h2>
-            <button class="add-event-btn">Add Event</button>
-        </div>
+        <!-- Calendar Section -->
+        <section id="calendar-section" class="card">
+            <div id="calendar"></div>
+        </section>
 
-        <div id="calendar" class="calendar"></div>
+        <!-- Event List Section -->
+        <section class="event-list card">
+            <header class="list-header">
+                <h3>Event List</h3>
+                <button class="add-event-btn">＋ Add Event</button>
+            </header>
 
-        <div class="event-list">
-            <h3>Event List</h3>
             <table id="events-table">
                 <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Location</th>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>All Day</th>
-                    <th>Actions</th>
-                </tr>
+                    <tr>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>All Day</th>
+                        <th>Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
-                <!-- Event rows will be injected here -->
+                    <!-- Event rows will be injected here -->
                 </tbody>
             </table>
-        </div>
+        </section>
     </main>
 </div>
 

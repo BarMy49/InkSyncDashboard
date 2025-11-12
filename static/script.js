@@ -275,17 +275,47 @@ async function saveModule() {
 }
 
 // --- Events ---
-let events = []; // lista eventów w pamięci
+let events = [];
+let calendar;
 
 document.addEventListener("DOMContentLoaded", () => {
-    initEventsPage();
-    fetchEventsFromServer();
+    if (document.getElementById("calendar")) {
+        initEventsPage();
+        fetchEventsFromServer();
+    }
 });
 
 function initEventsPage() {
-    if (!document.getElementById("calendar")) return;
+    const calendarEl = document.getElementById("calendar");
 
-    renderEventList();
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        selectable: true,
+        editable: false,
+        locale: 'pl',
+        height: "auto",
+        headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay"
+        },
+        events: events,
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        },
+        dateClick(info) {
+            openAddEventPopup(info.dateStr);
+        },
+        eventClick(info) {
+            if (confirm(`Delete event "${info.event.title}"?`)) {
+                removeEvent(info.event.extendedProps.id);
+            }
+        }
+    });
+
+    calendar.render();
     document.querySelector(".add-event-btn").onclick = () => openAddEventPopup();
 }
 
@@ -297,6 +327,7 @@ function fetchEventsFromServer() {
             if (Array.isArray(data)) {
                 events = data;
                 renderEventList();
+                renderCalendarEvents();
             } else {
                 console.error("Unexpected response from server:", data);
             }
@@ -311,7 +342,6 @@ function renderEventList() {
     events.forEach(event => {
         const tr = document.createElement("tr");
 
-        // Format start and end depending on allDay
         const startStr = event.allDay
             ? new Date(event.start).toLocaleDateString()
             : formatDateTime(event.start);
@@ -332,14 +362,28 @@ function renderEventList() {
         `;
         tbody.appendChild(tr);
     });
+    renderCalendarEvents();
 }
 
+function renderCalendarEvents() {
+    if (!calendar) return;
+    calendar.removeAllEvents();
+    events.forEach(ev => {
+        calendar.addEvent({
+            title: ev.name,
+            start: ev.start,
+            end: ev.end,
+            allDay: ev.allDay,
+            extendedProps: { id: ev.id, location: ev.location }
+        });
+    });
+}
 
+// --- remove event ---
 function removeEvent(id) {
     events = events.filter(e => e.id !== id);
     renderEventList();
 
-    // Save the updated events list to Flask
     fetch("/api/save/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -354,7 +398,7 @@ function formatDateTime(dt) {
 }
 
 // --- popup to add new event ---
-function openAddEventPopup() {
+function openAddEventPopup(defaultDate = "") {
     const popup = document.createElement("div");
     popup.classList.add("popup");
     popup.innerHTML = `
@@ -363,9 +407,9 @@ function openAddEventPopup() {
             <label>Name: <input type="text" id="event-name"></label>
             <label>Location: <input type="text" id="event-location"></label>
             <label>All Day: <input type="checkbox" id="event-allday"></label>
-            <label>Start: <input type="datetime-local" id="event-start"></label>
-            <label>End: <input type="datetime-local" id="event-end"></label>
-        
+            <label>Start: <input type="datetime-local" id="event-start" value="${defaultDate ? defaultDate + 'T00:00' : ''}"></label>
+            <label>End: <input type="datetime-local" id="event-end" value="${defaultDate ? defaultDate + 'T23:59' : ''}"></label>
+
             <div class="popup-actions">
                 <button id="save-event-btn">Save</button>
                 <button id="cancel-event-btn">Cancel</button>
@@ -378,7 +422,6 @@ function openAddEventPopup() {
     const endInput = document.getElementById("event-end");
     const allDayCheckbox = document.getElementById("event-allday");
 
-    // Hide time when all day is checked
     allDayCheckbox.addEventListener("change", () => {
         if (allDayCheckbox.checked) {
             startInput.type = "date";
@@ -402,7 +445,6 @@ function openAddEventPopup() {
             alert("Please fill all fields.");
             return;
         }
-
         if (!allDay && new Date(start) > new Date(end)) {
             alert("Start date/time cannot be after end date/time.");
             return;
@@ -420,12 +462,11 @@ function openAddEventPopup() {
         events.push(newEvent);
         renderEventList();
 
-        // send to Flask
         fetch("/api/save/events", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(events)  // send full array
-        })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(events)
+        }).catch(err => console.error("Error saving events:", err));
 
         popup.remove();
     };

@@ -560,23 +560,6 @@ nav {
     color: #fff;
 }
 
-/* --- events table --- */
-.event-list table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-
-.event-list th, .event-list td {
-    border: 1px solid #ccc;
-    padding: 8px;
-    text-align: left;
-}
-
-.event-list th {
-    background: #f0f0f0;
-}
-
 .popup-content label {
     display: flex;
     justify-content: space-between; /* text left, input right */
@@ -594,4 +577,81 @@ nav {
 .popup-content label input[type="checkbox"] {
     width: auto;
     height: auto;
+}
+
+
+/* Card component (used by calendar & event list) */
+.card {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.05);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;      /* space between cards */
+}
+
+/* Calendar placeholder (you can style the actual calendar widget separately) */
+#calendar-section {
+    min-height: 350px;          /* give it some breathing room */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#calendar {
+    width: 100%;
+}
+
+/* Event list header */
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: .75rem;
+}
+
+.list-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+/* Button styling */
+.add-event-btn {
+    background-color: #d8d8d8;
+    border: none;
+    color: #222;
+    padding: .5rem .75rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color .15s ease-in-out;
+}
+
+.add-event-btn:hover,
+.add-event-btn:focus {
+    background-color: #c2c2c2;
+}
+
+/* Table styling */
+#events-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .95rem;
+}
+
+#events-table th,
+#events-table td {
+    padding: .75rem 1rem;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+#events-table thead tr {
+    background-color: #f7f7f7;
+    font-weight: 600;
+}
+
+#events-table tbody tr:hover {
+    background-color: #d8d8d8;
 }
