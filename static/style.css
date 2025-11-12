@@ -15,7 +15,7 @@ body {
     height: 100vh;
 }
 
-/* --- Sidebar --- */
+/* Sidebar */
 .sidebar {
     width: 220px;
     background: #111;
@@ -55,7 +55,7 @@ nav {
     color: #fff;
 }
 
-/* --- Main Content --- */
+/* Main content */
 .content {
     flex: 1;
     display: flex;
@@ -64,7 +64,7 @@ nav {
     overflow-y: auto;
 }
 
-/* --- Tabs --- */
+/* Tabs */
 .tabs {
     display: flex;
     width: 100%;
@@ -72,7 +72,6 @@ nav {
     background: #e9e9ec;
 }
 
-/* Base tab look */
 .tab {
     flex: 1;
     text-align: center;
@@ -83,14 +82,12 @@ nav {
     border-bottom: 3px solid transparent;
 }
 
-/* Unavailable (no JSON file) */
 .tab.disabled {
     color: #aaa;
     background: #e0e0e0;
     cursor: not-allowed;
 }
 
-/* Available but inactive */
 .tab.enabled {
     cursor: pointer;
     color: #666;
@@ -102,7 +99,6 @@ nav {
     color: #fff;
 }
 
-/* Active tab */
 .tab.active {
     color: #222;
     background: #f9f9fb;
@@ -110,7 +106,7 @@ nav {
     border-bottom: 3px solid #222;
 }
 
-/* --- Module Content --- */
+/* Module Content */
 .module-content {
     flex: 1;
     background: #fff;
@@ -120,7 +116,7 @@ nav {
     overflow-y: auto;
 }
 
-/* --- Info Sections --- */
+/* Info Sections */
 .info-section {
     margin-bottom: 20px;
 }
@@ -132,7 +128,7 @@ nav {
     color: #222;
 }
 
-/* --- Tables --- */
+/* Tables */
 .info-table, .key-table {
     width: 100%;
     border-collapse: collapse;
@@ -152,7 +148,7 @@ nav {
     font-weight: 500;
 }
 
-/* --- Empty State --- */
+/* Empty State */
 .empty {
     text-align: center;
     color: #888;
@@ -161,20 +157,267 @@ nav {
     font-size: 0.95em;
 }
 
-/* --- Scrollbar Styling --- */
-.content::-webkit-scrollbar {
-    width: 8px;
+/* Edit Buttons */
+.edit-btn {
+    margin-left: 10px;
+    padding: 4px 8px;
+    font-size: 0.8em;
+    background: #444;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-.content::-webkit-scrollbar-track {
-    background: #f1f1f1;
+.edit-btn:hover {
+    background: #222;
 }
 
-.content::-webkit-scrollbar-thumb {
-    background: #ccc;
+/* Dialog */
+.dialog-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.dialog {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    width: 320px;
+    max-width: 90%;
+}
+
+.dialog h3 {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #222;
+}
+
+.combo-builder {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.combo-input {
+    flex: 1;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
     border-radius: 4px;
 }
 
-.content::-webkit-scrollbar-thumb:hover {
+.combo-input:focus {
+    outline: 2px solid #222;
+}
+
+.plus-btn {
+    margin-left: 6px;
+    background: #555;
+    color: #fff;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.plus-btn:hover {
+    background: #333;
+}
+
+/* Special Keys */
+.special-keys {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
+.special-key-btn {
+    flex: 1 0 calc(25% - 4px);
+    background: #ddd;
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.special-key-btn:hover {
+    background: #bbb;
+}
+
+/* Dialog Actions */
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-cancel, .btn-save {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-cancel {
+    background: #bbb;
+}
+
+.btn-save {
+    background: #222;
+    color: #fff;
+}
+
+.btn-cancel:hover {
+    background: #999;
+}
+
+.btn-save:hover {
+    background: #000;
+}
+
+/* --- Popup --- */
+.popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    width: 380px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+}
+
+.popup-content h3 {
+    margin-bottom: 8px;
+}
+
+#key-input {
+    padding: 8px;
+    font-size: 1em;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 100%;
+}
+
+.special-keys {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+}
+
+.special-btn {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #eee;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.special-btn:hover {
+    background: #444;
+    color: #fff;
+}
+
+.popup-controls {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+.popup-controls button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+#save-key {
+    background: #000000;
+    color: white;
+}
+
+#cancel-key {
     background: #aaa;
+    color: white;
+}
+
+#clear-key {
+    background: #aaa;
+    color: white;
+}
+
+.hint {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 6px;
+}
+
+/* --- Module-level buttons --- */
+.save-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.save-controls button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+#save-module {
+    background: #000000;
+    color: white;
+}
+
+#cancel-module {
+    background: #aaa;
+    color: white;
+}
+
+/* --- Informational popup --- */
+.info-popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #222;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+    z-index: 2000;
+    font-size: 0.95em;
 }

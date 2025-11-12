@@ -1,11 +1,11 @@
 {
   "info": {
-    "type": "keypad",
+    "Last Updated": "2025-11-08",
     "Module Name": "Keypad",
-    "Last Updated": "2025-11-08"
+    "type": "keypad"
   },
   "keys": {
-    "KEY1": "F13",
+    "KEY1": "Shift+F22+F16+F22",
     "KEY2": "F14",
     "KEY3": "Shift+F15"
   }

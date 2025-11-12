@@ -1,27 +1,53 @@
-from flask import Flask, render_template, jsonify, send_from_directory
-import os, json
+from flask import Flask, render_template, jsonify, request
+import os
+import json
+from enum import Enum
+from werkzeug.utils import secure_filename
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
+
+MODULES_DIR = 'modules'
+
+
+class ModuleType(str, Enum):
+    KEYPAD = "keypad"
+    KNOB_ARRAY = "knob_array"
+
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
+
 @app.route('/api/<string:page>')
 def get_module(page):
-    file_path = f'modules/{page}.json'
+    # sanitize filename
+    filename = secure_filename(f'{page}.json')
+    file_path = os.path.join(MODULES_DIR, filename)
     if os.path.exists(file_path):
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         return jsonify(data)
     return jsonify({'error': 'not found'}), 404
 
+
 @app.route('/api/check')
 def check_files():
     return jsonify({
-        'module1': os.path.exists('modules/module1.json'),
-        'module2': os.path.exists('modules/module2.json')
+        'module1': os.path.exists(os.path.join(MODULES_DIR, 'module1.json')),
+        'module2': os.path.exists(os.path.join(MODULES_DIR, 'module2.json'))
     })
 
+
+@app.route('/api/save/<string:page>', methods=['POST'])
+def save_module(page):
+    file_path = f'modules/{page}.json'
+    data = request.get_json()
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    return jsonify({'status': 'saved'})
+
+
 if __name__ == '__main__':
+    os.makedirs(MODULES_DIR, exist_ok=True)
     app.run(debug=True)
