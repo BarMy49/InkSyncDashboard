@@ -1,23 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>InkSync</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+{% include 'header.html' with context %}
+
 <div class="container">
-    <aside class="sidebar">
-        <div class="logo">InkSync</div>
-        <nav>
-            <button class="nav-btn active">Device</button>
-            <button class="nav-btn">Layout</button>
-            <button class="nav-btn">Automation</button>
-            <button class="nav-btn">Settings</button>
-            <button class="nav-btn">Events</button>
-        </nav>
-    </aside>
+    {% include 'sidebar.html' with context %}
 
     <main class="content">
         <div class="tabs">
@@ -31,6 +15,4 @@
     </main>
 </div>
 
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
+{% include 'footer.html' %}

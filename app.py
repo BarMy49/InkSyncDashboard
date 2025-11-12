@@ -16,7 +16,27 @@ class ModuleType(str, Enum):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('index.html', title='Device', key='device')
+
+
+@app.route('/layout')
+def layout():
+    return render_template('layout.html', title='Layout', key='layout')
+
+
+@app.route('/automation')
+def automation():
+    return render_template('automation.html', title='Automation', key='automation')
+
+
+@app.route('/settings')
+def settings():
+    return render_template('settings.html', title='Settings', key='settings')
+
+
+@app.route('/events')
+def events():
+    return render_template('events.html', title='Events', key='events')
 
 
 @app.route('/api/<string:page>')

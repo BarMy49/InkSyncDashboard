@@ -94,15 +94,15 @@ function renderSpecs(data) {
             <h3>Key Assignments</h3>
             <table class="key-table">
                 ${Object.entries(data.keys).map(([k, v]) => {
-                    if (data.info.type === "keypad") {
-                        return `
+            if (data.info.type === "keypad") {
+                return `
                         <tr>
                             <td>${k}</td>
                             <td><button class="edit-btn" data-key="${k}">${v}</button></td>
                         </tr>`;
-                    } else if (data.info.type === "knob_array") {
-                        const options = ["Volume Control", "Vertical Scroll", "Horizontal Scroll", "Brightness", "Zoom", "Custom Macro"];
-                        return `
+            } else if (data.info.type === "knob_array") {
+                const options = ["Volume Control", "Vertical Scroll", "Horizontal Scroll", "Brightness", "Zoom", "Custom Macro"];
+                return `
                         <tr>
                             <td>${k}</td>
                             <td>
@@ -113,8 +113,8 @@ function renderSpecs(data) {
                                 </div>
                             </td>
                         </tr>`;
-                    }
-                }).join('')}
+            }
+        }).join('')}
             </table>
         </div>`;
     }
@@ -157,7 +157,6 @@ function renderSpecs(data) {
 }
 
 
-
 // --- Open dialog for editing key assignment ---
 function openEditDialog(keyName) {
     const dialog = document.createElement("div");
@@ -170,7 +169,7 @@ function openEditDialog(keyName) {
                 <button id="clear-key">Clear</button>
             </div>
             <div class="special-keys">
-                ${Array.from({ length: 12 }, (_, i) => `<button class="special-btn">F${i + 13}</button>`).join('')}
+                ${Array.from({length: 12}, (_, i) => `<button class="special-btn">F${i + 13}</button>`).join('')}
             </div>
             <div class="popup-controls">
                 <button id="save-key">Save</button>
@@ -259,7 +258,7 @@ async function saveModule() {
     try {
         const res = await fetch(`/api/save/${currentModule}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(editedData)
         });
         if (res.ok) {
