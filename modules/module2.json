@@ -1,12 +1,12 @@
 {
   "info": {
-    "type": "knob_array",
+    "Last Updated": "2025-11-08",
     "Module Name": "Knob Array",
-    "Last Updated": "2025-11-08"
+    "type": "knob_array"
   },
   "keys": {
-    "KNOB1": "Volume Control",
-    "KNOB2": "Vertical Scroll",
-    "KNOB3": "Horizontal Scroll"
+    "KNOB1": "Brightness",
+    "KNOB2": "Zoom",
+    "KNOB3": "Vertical Scroll"
   }
 }

@@ -66,7 +66,6 @@ async function loadModule(page) {
     }
 }
 
-// --- Render specs into content area ---
 function renderSpecs(data) {
     if (!data || Object.keys(data).length === 0) {
         content.innerHTML = `<p class="empty">No data available for this module.</p>`;
@@ -75,33 +74,52 @@ function renderSpecs(data) {
 
     let html = "";
 
+    // --- Module info ---
     if (data.info) {
         html += `
         <div class="info-section">
             <h3>Module Information</h3>
             <table class="info-table">
-                ${Object.entries(data.info).filter(([k]) => k !== "type").map(([k, v]) => `
+                ${Object.entries(data.info).slice(1).map(([k, v]) => `
                     <tr><td>${k}</td><td>${v}</td></tr>
                 `).join('')}
             </table>
         </div>`;
     }
 
+    // --- Keys or knobs ---
     if (data.keys) {
         html += `
         <div class="info-section">
             <h3>Key Assignments</h3>
             <table class="key-table">
-                ${Object.entries(data.keys).map(([k, v]) => `
-                    <tr>
-                        <td>${k}</td>
-                        <td><button class="edit-btn" data-key="${k}">${v}</button></td>
-                    </tr>
-                `).join('')}
+                ${Object.entries(data.keys).map(([k, v]) => {
+                    if (data.info.type === "keypad") {
+                        return `
+                        <tr>
+                            <td>${k}</td>
+                            <td><button class="edit-btn" data-key="${k}">${v}</button></td>
+                        </tr>`;
+                    } else if (data.info.type === "knob_array") {
+                        const options = ["Volume Control", "Vertical Scroll", "Horizontal Scroll", "Brightness", "Zoom", "Custom Macro"];
+                        return `
+                        <tr>
+                            <td>${k}</td>
+                            <td>
+                                <div class="knob-select-wrapper">
+                                    <select class="knob-select" data-key="${k}">
+                                        ${options.map(opt => `<option value="${opt}" ${opt === v ? "selected" : ""}>${opt}</option>`).join('')}
+                                    </select>
+                                </div>
+                            </td>
+                        </tr>`;
+                    }
+                }).join('')}
             </table>
         </div>`;
     }
 
+    // --- Module-level Save / Cancel ---
     html += `
     <div class="save-controls">
         <button id="save-module">Save</button>
@@ -110,13 +128,28 @@ function renderSpecs(data) {
 
     content.innerHTML = html;
 
-    document.querySelectorAll(".edit-btn").forEach(btn => {
-        btn.onclick = () => openEditDialog(btn.dataset.key);
-    });
+    // --- Keypad editing ---
+    if (data.info.type === "keypad") {
+        document.querySelectorAll(".edit-btn").forEach(btn => {
+            btn.onclick = () => openEditDialog(btn.dataset.key);
+        });
+    }
 
+    // --- Knob array dropdown updates ---
+    if (data.info.type === "knob_array") {
+        document.querySelectorAll(".knob-select").forEach(sel => {
+            sel.onchange = () => {
+                const key = sel.dataset.key;
+                editedData.keys[key] = sel.value;
+            };
+        });
+    }
+
+    // --- Module-level buttons ---
     document.getElementById("save-module").onclick = saveModule;
     document.getElementById("cancel-module").onclick = () => renderSpecs(currentData);
 }
+
 
 // --- Open dialog for editing key assignment ---
 function openEditDialog(keyName) {

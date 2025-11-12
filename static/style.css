@@ -421,3 +421,57 @@ nav {
     z-index: 2000;
     font-size: 0.95em;
 }
+
+/* --- Knob Array Dropdowns --- */
+.knob-select {
+    appearance: none; /* remove default arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: #111;       /* dark background */
+    color: #fff;            /* white text */
+    padding: 8px 12px;
+    border: 1px solid #333; /* subtle border */
+    border-radius: 6px;
+    font-size: 0.95em;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+/* Hover effect */
+.knob-select:hover {
+    border-color: #666;
+    background: #222;
+}
+
+/* Focus effect */
+.knob-select:focus {
+    outline: none;
+    border-color: #fff;
+    box-shadow: 0 0 6px #fff50a22; /* subtle white glow */
+    background: #222;
+}
+
+/* Add custom arrow using pseudo-element */
+.knob-select-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.knob-select-wrapper::after {
+    content: "▾"; /* arrow character */
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #fff;
+    font-size: 0.9em;
+}
+
+/* Ensure select inside wrapper stretches */
+.knob-select-wrapper select.knob-select {
+    width: 100%;
+}
