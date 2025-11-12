@@ -148,7 +148,14 @@ function renderSpecs(data) {
     // --- Module-level buttons ---
     document.getElementById("save-module").onclick = saveModule;
     document.getElementById("cancel-module").onclick = () => renderSpecs(currentData);
+
+    // --- Update active tab name to module name ---
+    const activeTab = document.querySelector(".tab.active");
+    if (activeTab && data.info["Module Name"]) {
+        activeTab.textContent = data.info["Module Name"];
+    }
 }
+
 
 
 // --- Open dialog for editing key assignment ---
