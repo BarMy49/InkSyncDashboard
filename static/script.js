@@ -275,115 +275,158 @@ async function saveModule() {
 }
 
 // --- Events ---
-const eventsUrl = '/api/events'; // endpoint do pobierania eventów
-const saveEventsUrl = '/api/save/events'; // endpoint do zapisu
+let events = []; // lista eventów w pamięci
 
-let eventsData = [];
-
-// --- inicjalizacja po załadowaniu DOM ---
 document.addEventListener("DOMContentLoaded", () => {
-    if (window.location.pathname.includes('/events')) {
-        loadEvents();
-        document.getElementById('add-event-btn').onclick = addEventDialog;
-    }
+    initEventsPage();
+    fetchEventsFromServer();
 });
 
-// --- pobranie eventów z serwera ---
-async function loadEvents() {
-    try {
-        const res = await fetch(eventsUrl);
-        eventsData = await res.json();
-        renderCalendar();
-        renderEventList();
-    } catch (err) {
-        console.error('Error loading events:', err);
-    }
+function initEventsPage() {
+    if (!document.getElementById("calendar")) return;
+
+    renderEventList();
+    document.querySelector(".add-event-btn").onclick = () => openAddEventPopup();
 }
 
-// --- render FullCalendar ---
-function renderCalendar() {
-    const calendarEl = document.getElementById('calendar');
-    calendarEl.innerHTML = '';
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        events: eventsData.map(e => ({
-            id: e.id,
-            title: e.name,
-            start: e.start,
-            end: e.end,
-            allDay: e.allDay
-        }))
-    });
-    calendar.render();
+// --- fetch events from Flask ---
+function fetchEventsFromServer() {
+    fetch("/api/events")
+        .then(res => res.json())
+        .then(data => {
+            if (Array.isArray(data)) {
+                events = data;
+                renderEventList();
+            } else {
+                console.error("Unexpected response from server:", data);
+            }
+        })
+        .catch(err => console.error("Error fetching events:", err));
 }
 
-// --- render listy eventów ---
+// --- render list of events ---
 function renderEventList() {
-    const tbody = document.querySelector('#events-table tbody');
-    tbody.innerHTML = '';
-    eventsData.forEach(e => {
-        const tr = document.createElement('tr');
+    const tbody = document.querySelector("#events-table tbody");
+    tbody.innerHTML = "";
+    events.forEach(event => {
+        const tr = document.createElement("tr");
+
+        // Format start and end depending on allDay
+        const startStr = event.allDay
+            ? new Date(event.start).toLocaleDateString()
+            : formatDateTime(event.start);
+
+        const endStr = event.allDay
+            ? new Date(event.end).toLocaleDateString()
+            : formatDateTime(event.end);
+
         tr.innerHTML = `
-            <td>${e.name}</td>
-            <td>${e.location}</td>
-            <td>${new Date(e.start).toLocaleString()}</td>
-            <td>${new Date(e.end).toLocaleString()}</td>
-            <td>${e.allDay}</td>
+            <td>${event.name}</td>
+            <td>${event.location}</td>
+            <td>${startStr}</td>
+            <td>${endStr}</td>
+            <td>${event.allDay ? "Yes" : "No"}</td>
             <td>
-                <button onclick="editEvent('${e.id}')">Edit</button>
-                <button onclick="deleteEvent('${e.id}')">Delete</button>
+                <button onclick="removeEvent('${event.id}')">Delete</button>
             </td>
         `;
         tbody.appendChild(tr);
     });
 }
 
-// --- dodawanie nowego eventu ---
-function addEventDialog() {
-    const name = prompt("Event Name:");
-    if (!name) return;
-    const location = prompt("Location:");
-    const start = prompt("Start date/time (YYYY-MM-DD HH:MM):");
-    const end = prompt("End date/time (YYYY-MM-DD HH:MM):");
-    const allDay = confirm("All Day?");
-    const id = Date.now().toString(); // proste id
 
-    eventsData.push({ id, name, location, start, end, allDay });
-    saveEvents();
+function removeEvent(id) {
+    events = events.filter(e => e.id !== id);
+    renderEventList();
+
+    // Save the updated events list to Flask
+    fetch("/api/save/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(events)
+    }).catch(err => console.error("Error saving events after delete:", err));
 }
 
-// --- edycja eventu ---
-function editEvent(id) {
-    const event = eventsData.find(e => e.id === id);
-    if (!event) return;
-    const name = prompt("Event Name:", event.name);
-    const location = prompt("Location:", event.location);
-    const start = prompt("Start date/time (YYYY-MM-DD HH:MM):", event.start);
-    const end = prompt("End date/time (YYYY-MM-DD HH:MM):", event.end);
-    const allDay = confirm("All Day?");
-
-    Object.assign(event, { name, location, start, end, allDay });
-    saveEvents();
+// --- format date time ---
+function formatDateTime(dt) {
+    const d = new Date(dt);
+    return d.toLocaleString();
 }
 
-// --- usuwanie eventu ---
-function deleteEvent(id) {
-    if (!confirm("Delete this event?")) return;
-    eventsData = eventsData.filter(e => e.id !== id);
-    saveEvents();
-}
+// --- popup to add new event ---
+function openAddEventPopup() {
+    const popup = document.createElement("div");
+    popup.classList.add("popup");
+    popup.innerHTML = `
+        <div class="popup-content">
+            <h3>Add Event</h3>
+            <label>Name: <input type="text" id="event-name"></label>
+            <label>Location: <input type="text" id="event-location"></label>
+            <label>All Day: <input type="checkbox" id="event-allday"></label>
+            <label>Start: <input type="datetime-local" id="event-start"></label>
+            <label>End: <input type="datetime-local" id="event-end"></label>
+        
+            <div class="popup-actions">
+                <button id="save-event-btn">Save</button>
+                <button id="cancel-event-btn">Cancel</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(popup);
 
-// --- zapis eventów do json ---
-async function saveEvents() {
-    try {
-        await fetch(saveEventsUrl, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(eventsData)
-        });
-        renderCalendar();
+    const startInput = document.getElementById("event-start");
+    const endInput = document.getElementById("event-end");
+    const allDayCheckbox = document.getElementById("event-allday");
+
+    // Hide time when all day is checked
+    allDayCheckbox.addEventListener("change", () => {
+        if (allDayCheckbox.checked) {
+            startInput.type = "date";
+            endInput.type = "date";
+        } else {
+            startInput.type = "datetime-local";
+            endInput.type = "datetime-local";
+        }
+    });
+
+    document.getElementById("cancel-event-btn").onclick = () => popup.remove();
+
+    document.getElementById("save-event-btn").onclick = () => {
+        const name = document.getElementById("event-name").value.trim();
+        const location = document.getElementById("event-location").value.trim();
+        const start = startInput.value;
+        const end = endInput.value;
+        const allDay = allDayCheckbox.checked;
+
+        if (!name || !location || !start || !end) {
+            alert("Please fill all fields.");
+            return;
+        }
+
+        if (!allDay && new Date(start) > new Date(end)) {
+            alert("Start date/time cannot be after end date/time.");
+            return;
+        }
+
+        const newEvent = {
+            id: crypto.randomUUID(),
+            name,
+            location,
+            start,
+            end,
+            allDay
+        };
+
+        events.push(newEvent);
         renderEventList();
-    } catch (err) {
-        console.error('Error saving events:', err);
-    }
+
+        // send to Flask
+        fetch("/api/save/events", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(events)  // send full array
+        })
+
+        popup.remove();
+    };
 }

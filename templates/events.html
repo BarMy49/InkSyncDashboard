@@ -1,11 +1,14 @@
 {% include 'header.html' with context %}
+
 <div class="container">
-
     {% include 'sidebar.html' with context %}
-
     <main class="content">
-        <h2>Events</h2>
-        <div id="calendar"></div>
+        <div class="events-header">
+            <h2>Events</h2>
+            <button class="add-event-btn">Add Event</button>
+        </div>
+
+        <div id="calendar" class="calendar"></div>
 
         <div class="event-list">
             <h3>Event List</h3>
@@ -20,9 +23,10 @@
                     <th>Actions</th>
                 </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                <!-- Event rows will be injected here -->
+                </tbody>
             </table>
-            <button id="add-event-btn">Add Event</button>
         </div>
     </main>
 </div>

@@ -70,11 +70,11 @@ def save_module(page):
 
 @app.route('/api/events')
 def get_events():
-    file_path = os.path.join(EVENTS_DIR, 'events.json')
+    file_path = os.path.join(EVENTS_DIR, 'internal.json')
     if os.path.exists(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             return jsonify(json.load(f))
-    return jsonify([])  # pusty array jeśli brak
+    return jsonify([])
 
 @app.route('/api/save/events', methods=['POST'])
 def save_events():
