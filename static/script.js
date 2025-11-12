@@ -16,10 +16,18 @@ async function checkFiles() {
 
         setTabState(tab1, data.module1);
         setTabState(tab2, data.module2);
+
+        const firstAvailable = data.module1 ? 'module1' : data.module2 ? 'module2' : null;
+        if (firstAvailable) {
+            const tab = firstAvailable === 'module1' ? tab1 : tab2;
+            setActiveTab(tab);
+            loadModule(firstAvailable);
+        }
     } catch (err) {
         console.error("Error checking modules:", err);
     }
 }
+
 
 // --- Update tab state based on availability ---
 function setTabState(tab, available) {
@@ -72,19 +80,7 @@ function renderSpecs(data) {
         <div class="info-section">
             <h3>Module Information</h3>
             <table class="info-table">
-                ${Object.entries(data.info).map(([k, v]) => `
-                    <tr><td>${k}</td><td>${v}</td></tr>
-                `).join('')}
-            </table>
-        </div>`;
-    }
-
-    if (data.specs) {
-        html += `
-        <div class="info-section">
-            <h3>Specifications</h3>
-            <table class="info-table">
-                ${Object.entries(data.specs).map(([k, v]) => `
+                ${Object.entries(data.info).filter(([k]) => k !== "type").map(([k, v]) => `
                     <tr><td>${k}</td><td>${v}</td></tr>
                 `).join('')}
             </table>
