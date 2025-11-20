@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
 MODULES_DIR = 'modules'
+CONFIG_DIR = "configs"
 EVENTS_DIR = 'events'
 
 integration_status = {
@@ -19,6 +20,19 @@ class ModuleType(str, Enum):
     KEYPAD = "keypad"
     KNOB_ARRAY = "knob_array"
 
+
+# Domyślna konfiguracja gdy brak pliku
+DEFAULT_CONFIG = {
+    "KEY0": [None, None],
+    "KEY1": [None, None],
+    "KEY2": [None, None],
+    "KEY3": [None, None],
+    "KEY4": [None, None],
+    "KEY5": [None, None],
+    "KEY6": [None, None],
+    "KEY7": [None, None],
+    "KEY8": [None, None]
+}
 
 @app.route('/')
 def home():
@@ -45,6 +59,22 @@ def events():
     return render_template('events.html', title='Events', key='events')
 
 
+@app.get("/api/config/<uuid>")
+def get_or_create_config(uuid):
+    path = os.path.join(CONFIG_DIR, f"{uuid}.json")
+
+    # --- If config exists, return it ---
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            return jsonify(json.load(f))
+
+    # --- If not, create a new config ---
+    with open(path, "w", encoding="utf-8") as f:
+
+        json.dump(DEFAULT_CONFIG, f, indent=2)
+
+    return jsonify(DEFAULT_CONFIG)
+
 @app.route('/api/<string:page>')
 def get_module(page):
     # sanitize filename
@@ -64,14 +94,6 @@ def check_files():
         'module2': os.path.exists(os.path.join(MODULES_DIR, 'module2.json'))
     })
 
-
-@app.route('/api/save/<string:page>', methods=['POST'])
-def save_module(page):
-    file_path = f'modules/{page}.json'
-    data = request.get_json()
-    with open(file_path, 'w') as f:
-        json.dump(data, f, indent=2)
-    return jsonify({'status': 'saved'})
 
 @app.route('/api/events')
 def get_events():
@@ -115,4 +137,5 @@ def get_integration_status(service):
 if __name__ == '__main__':
     os.makedirs(MODULES_DIR, exist_ok=True)
     os.makedirs(EVENTS_DIR, exist_ok=True)
+    os.makedirs(CONFIG_DIR, exist_ok=True)
     app.run(debug=True)
