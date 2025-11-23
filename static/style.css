@@ -88,7 +88,7 @@ nav {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: #f9f9fb;
+    background: #2b2b2b;
     overflow-y: auto;
 }
 
@@ -771,61 +771,175 @@ nav {
 }
 
 /* Layout Creator */
-#toolbar {
-    width: 100%;
-    background: #2c3e50;
-    color: white;
-    padding: 10px;
+/* --- Toolbar --- */
+.layout-toolbar {
     display: flex;
     gap: 10px;
-    box-sizing: border-box;
+    padding: 10px;
+    background: #2b2b2b;
+    border-bottom: 2px solid #444;
+    margin-bottom: 15px;
 }
 
 .widget-item {
-    background: #34495e;
-    color: white;
-    padding: 8px;
+    padding: 6px 12px;
+    background: #3c3c3c;
+    border: 1px solid #555;
     border-radius: 4px;
     cursor: grab;
+    user-select: none;
+    color: #eee;
+    font-size: 14px;
 }
 
-#workspace {
-    flex: 1;
-    background: #ecf0f1;
+.widget-item:active {
+    cursor: grabbing;
+    background: #555;
+}
+
+/* --- Workspace --- */
+.layout-workspace {
+    width: 800px;
+    height: 480px;
+    background: #1e1e1e;
+    border: 3px solid #555;
+    margin: 0 auto;
     position: relative;
-    min-height: 600px;
-    border: 2px solid #bdc3c7;
-    margin-top: 10px;
+    overflow: hidden;
 }
 
+/* --- Widgets --- */
 .widget {
     position: absolute;
-    border: 2px dashed #7f8c8d;
-    padding: 10px;
-    background: white;
-    cursor: move;
-    min-width: 100px;
-    min-height: 50px;
-    border-radius: 4px;
+    background: #2e2e2e;
+    border: 2px solid #777;
+    color: white;
+    padding: 4px;
+    font-size: 14px;
     box-sizing: border-box;
 }
 
-/* uchwyt resize w prawym dolnym rogu */
-.widget .resizer {
-    width: 10px;
-    height: 10px;
-    background: #2980b9;
+/* --- lista eventów w widgetach --- */
+.widget ul, .widget ol {
+    margin: 0;
+    list-style: none;
+    font-size: 150%;
+}
+
+/* opcjonalnie, aby nic nie “wykręcało” poza widget */
+.widget {
+    overflow: hidden;
+}
+
+/* Min‑sizes per widget type */
+.widget-events      { min-width: 180px; min-height: 120px; }
+.widget-digitalClock{ min-width: 150px; min-height: 80px; }
+.widget-analogClock{ min-width: 200px; min-height: 140px; }
+.widget-text        { min-width: 200px; min-height: 100px; }
+.widget-calendar    { min-width: 250px; min-height: 120px; }
+
+/* Resize handle */
+.widget .resize-handle {
     position: absolute;
-    right: 0;
+    width: 12px;
+    height: 12px;
+    background: #999;
     bottom: 0;
+    right: 0;
     cursor: se-resize;
 }
 
-.widget canvas {
-    display: block;
+/* Digital clock specific styling */
+.clock-digital {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100%;
+    font-weight:bold;
+    color:white;
 }
 
-#workspace .fc {
-    width: 300px; /* możesz ustawić rozmiar kalendarza */
-    height: 300px;
+/* Analog clock UI */
+.clock-analog{
+    position:relative;
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    background:#333;
 }
+.clock-hand{
+    position:absolute;
+    bottom:50%; left:50%;
+    transform-origin:bottom center;
+    background:#fff;
+    border-radius:2px;
+}
+.clock-hour   { width:4px;  height:30%; }
+.clock-minute { width:3px;  height:40%; }
+.clock-second { width:2px;  height:45%; background:red; }
+.clock-center{
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:6px; height:6px;
+    background:#fff;
+    border-radius:50%;
+}
+
+/* Calendar inside widget */
+.widget table{ width:100%; border-collapse:collapse; font-size:12px;}
+.widget table th,
+.widget table td{ text-align:center; padding:2px;}
+
+/* --- Close‑button (X) w każdym widgetcie --- */
+.widget-close {
+    position: absolute;
+    top: 4px;            /* odległość od górnego brzegu widgetu */
+    right: 4px;          /* odległość od prawego brzegu widgetu */
+    width: 18px;
+    height: 18px;
+    background: #555;    /* przyciemniony tło, żeby było widoczne */
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    line-height: 16px;   /* wyśrodkowanie X w okręgu */
+    text-align: center;
+    cursor: pointer;
+    z-index: 1000;       /* nad wszystkimi elementami widgetu */
+    user-select: none;   /* nie zaznaczamy przycisku */
+}
+
+.widget-close:hover { background:#777; }
+
+/* ----------  Kalendarz (widget)  ---------- */
+.widget-calendar{
+    /* Flex‑container: podział na nagłówek i tabelę          */
+    display:flex;
+    flex-direction:column;
+    height:100%;                    /* wypełnia całą wysokość widgetu */
+}
+
+.widget-calendar > b{             /* tytuł – nie rośnie                         */
+    flex:none;                    /* zachowaj naturalny rozmiar                */
+    margin-bottom:4px;             /* odstęp od tabeli                          */
+}
+
+/* Tabela będzie „wzrostem” (flex:1) i wypełni pozostałą przestrzeń   */
+.widget-calendar table{
+    flex:1;
+    width:100%;
+    height:100%;                   /* aby tabela rozciągnęła się pionowo      */
+    border-collapse:collapse;       /* opcjonalnie, dla czystego wyglądu     */
+}
+
+/* Opcjonalnie – żeby komórki wypełniały dostępny pionowy wymiar   */
+.widget-calendar td{
+    height:auto;                    /* automatycznie dostosuje się do wysokości */
+}
+
+/* ----------  Kalendarz (widget) – dzisiejszy dzień ---------- */
+.widget-calendar td.cal-today{
+    background:#fff;
+    color:#444;
+}
+

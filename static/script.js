@@ -379,190 +379,244 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* --- LAYOUT CREATOR PAGE --- */
-const workspace = document.getElementById('workspace');
-let widgetCount = 0;
-let draggedType = null;
+const workspace   = document.getElementById("workspace") || document.querySelector(".layout-workspace");
+const toolbarItems= document.querySelectorAll(".widget-item");
 
-// --- Drag start z panelu górnego ---
-document.querySelectorAll('.widget-item').forEach(item => {
-    item.addEventListener('dragstart', e => {
-        draggedType = e.target.dataset.type;
+const GRID_SIZE = 20;
+let currentDraggedType = null;
+
+/* ---- Drag start from toolbar ---- */
+toolbarItems.forEach(item => {
+    item.addEventListener("dragstart", e => {
+        currentDraggedType = e.target.dataset.type;
     });
 });
 
-// --- Drop na workspace ---
-workspace.addEventListener('dragover', e => e.preventDefault());
-workspace.addEventListener('drop', e => {
+/* ---- Allow dropping on workspace ---- */
+workspace.addEventListener("dragover", e => { e.preventDefault(); });
+
+workspace.addEventListener("drop", e => {
     e.preventDefault();
-    if (!draggedType) return;
+    if (!currentDraggedType) return;
 
-    const widget = document.createElement('div');
-    widget.className = 'widget';
-    widget.id = 'widget' + widgetCount++;
-    widget.style.left = e.offsetX + 'px';
-    widget.style.top = e.offsetY + 'px';
-    widget.style.width = '150px';
-    widget.style.height = '150px';
+    const rect = workspace.getBoundingClientRect();
 
-    switch(draggedType) {
-        case 'events':
-            widget.innerHTML = '<strong>Lista Eventów</strong><ul><li>Event 1</li><li>Event 2</li></ul>';
-            break;
-        case 'digitalClock':
-            widget.innerHTML = '<div id="digital'+widget.id+'">00:00:00</div>';
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('digital'+widget.id).innerText = now.toLocaleTimeString();
-            }, 1000);
-            break;
-        case 'analogClock':
-            widget.innerHTML = '<canvas width="100" height="100"></canvas>';
-            drawAnalogClock(widget.querySelector('canvas'));
-            setInterval(() => drawAnalogClock(widget.querySelector('canvas')), 1000);
-            break;
-        case 'text':
-            widget.innerHTML = 'Twój tekst...';
-            widget.contentEditable = true;
-            break;
-        case 'calendar':
-            const calDiv = document.createElement('div');
-            calDiv.id = 'fc-' + widget.id;
-            widget.appendChild(calDiv);
-            workspace.appendChild(widget); // musimy dodać przed renderem FullCalendar
-            const calendar = new FullCalendar.Calendar(calDiv, {
-                initialView: 'dayGridMonth',
-                height: '100%',
-                contentHeight: '100%',
-                expandRows: true
+    let x = Math.round((e.clientX - rect.left)/GRID_SIZE)*GRID_SIZE;
+    let y = Math.round((e.clientY - rect.top)/GRID_SIZE)*GRID_SIZE;
+
+    createWidget(currentDraggedType, x, y);
+    currentDraggedType = null;
+});
+
+/* ---- Create widget ---- */
+function createWidget(type, x, y) {
+    const widget = document.createElement("div");
+    widget.classList.add("widget", `widget-${type}`);
+    widget.style.left  = `${x}px`;
+    widget.style.top   = `${y}px`;
+    widget.style.width = "200px";
+    widget.style.height= "120px";
+
+    switch (type) {
+        case "events":
+            widget.innerHTML = "<ul class='event-list'></ul>";
+            const sampleEvents = [
+                "10:00 Meeting",
+                "12:30 Lunch",
+                "15:45 Project presentation",
+                "18:20 Job interview"
+            ];
+            const ul = widget.querySelector('.event-list');
+            sampleEvents.forEach(ev => {
+                const li = document.createElement('li');
+                li.textContent = ev;
+                ul.appendChild(li);
             });
-            calendar.render();
-            makeDraggableResizable(widget, calendar);
-            draggedType = null;
-            return; // wyjście, bo widget już dodany
+            break;
+
+        case "digitalClock":
+            widget.innerHTML = "<div class='clock-digital'></div>";
+            startDigitalClock(widget);
+            break;
+
+        case "analogClock":
+            widget.innerHTML = `
+                <div class="clock-analog">
+                    <div class="clock-hand clock-hour"></div>
+                    <div class="clock-hand clock-minute"></div>
+                    <div class="clock-hand clock-second"></div>
+                    <div class="clock-center"></div>
+                </div>`;
+            startAnalogClock(widget);
+            break;
+
+        case "text":
+            widget.innerHTML = "<p>Wpisz coś...</p>";
+            break;
+
+        case "calendar":
+            widget.innerHTML = generateCalendar();
+            break;
     }
+
+    addResizeHandle(widget);
+    enableDragging(widget);
+    addCloseButton(widget);
 
     workspace.appendChild(widget);
-    makeDraggableResizable(widget);
-    draggedType = null;
-});
+}
 
-// --- Funkcja do draggable + resizable ---
-function makeDraggableResizable(el, calendar=null) {
-    // --- Draggable ---
-    let offsetX, offsetY, isDragging = false;
-    el.addEventListener('mousedown', e => {
-        if (e.target.classList.contains('resizer')) return;
-        isDragging = true;
-        offsetX = e.clientX - el.offsetLeft;
-        offsetY = e.clientY - el.offsetTop;
-        el.style.borderColor = '#2980b9';
-    });
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
-        el.style.borderColor = '#7f8c8d';
-    });
-    document.addEventListener('mousemove', e => {
-        if (isDragging) {
-            el.style.left = e.clientX - offsetX + 'px';
-            el.style.top = e.clientY - offsetY + 'px';
-        }
-    });
+/* ---- Digital clock logic ---- */
+function startDigitalClock(widget) {
+    const display = widget.querySelector('.clock-digital');
 
-    // --- Resizable ---
-    const resizer = document.createElement('div');
-    resizer.className = 'resizer';
-    el.appendChild(resizer);
+    function tick() {
+        const now  = new Date();
+        const hh   = String(now.getHours()).padStart(2, '0');
+        const mm   = String(now.getMinutes()).padStart(2, '0');
+        display.textContent = `${hh}:${mm}`;
 
-    let isResizing = false;
-    resizer.addEventListener('mousedown', e => {
+        /* Dynamic font‑size – keeps the time readable no matter widget size */
+        const w = widget.clientWidth;
+        const h = widget.clientHeight;
+        const base = Math.min(w, h) / 2;   // tweak divisor for taste
+        display.style.fontSize = `${base}px`;
+    }
+
+    tick();                // init immediately
+    setInterval(tick, 1000); // update every second
+}
+
+/* ---- Analog clock logic ---- */
+function startAnalogClock(widget) {
+    function update() {
+        const now   = new Date();
+        const sec   = now.getSeconds();
+        const min   = now.getMinutes();
+        const hour  = (now.getHours() % 12) + min / 60;
+
+        const secDeg  = sec * 6;                     // 360/60
+        const minDeg  = min * 6 + sec * 0.1;          // minute hand also moves with seconds
+        const hourDeg = hour * 30;                    // 360/12
+
+        widget.querySelector('.clock-hour').style.transform   = `rotate(${hourDeg}deg)`;
+        widget.querySelector('.clock-minute').style.transform = `rotate(${minDeg}deg)`;
+        widget.querySelector('.clock-second').style.transform = `rotate(${secDeg}deg)`;
+    }
+
+    update();                // init immediately
+    setInterval(update, 1000); // tick every second
+}
+
+/* ---- Resizing ---- */
+function addResizeHandle(widget) {
+    const handle   = document.createElement("div");
+    handle.classList.add("resize-handle");
+
+    let resizing = false,
+        startX, startY, startW, startH;
+
+    handle.addEventListener("mousedown", e => {
+        resizing = true;
+        startX   = e.clientX;
+        startY   = e.clientY;
+        startW   = widget.offsetWidth;
+        startH   = widget.offsetHeight;
         e.stopPropagation();
-        isResizing = true;
-        document.addEventListener('mousemove', resizeMove);
-        document.addEventListener('mouseup', resizeStop);
     });
 
-    function resizeMove(e) {
-        if (!isResizing) return;
-        const rect = el.getBoundingClientRect();
-        const newWidth = e.clientX - rect.left;
-        const newHeight = e.clientY - rect.top;
-        if (newWidth > 50) el.style.width = newWidth + 'px';
-        if (newHeight > 30) el.style.height = newHeight + 'px';
+    document.addEventListener("mousemove", e => {
+        if (!resizing) return;
 
-        // Aktualizacja FullCalendar przy resize
-        if (calendar) {
-            calendar.setOption('height', el.clientHeight);
-            calendar.setOption('contentHeight', el.clientHeight);
-        }
+        let newW = startW + (e.clientX - startX);
+        let newH = startH + (e.clientY - startY);
 
-        // Aktualizacja canvas analog clock
-        const canvas = el.querySelector('canvas');
-        if (canvas) {
-            canvas.width = el.clientWidth - 20; // padding
-            canvas.height = el.clientHeight - 20;
-            drawAnalogClock(canvas);
-        }
-    }
+        newW = Math.max(60, newW);
+        newH = Math.max(40, newH);
 
-    function resizeStop() {
-        isResizing = false;
-        document.removeEventListener('mousemove', resizeMove);
-        document.removeEventListener('mouseup', resizeStop);
-    }
+        newW = Math.round(newW / GRID_SIZE) * GRID_SIZE;
+        newH = Math.round(newH / GRID_SIZE) * GRID_SIZE;
+
+        widget.style.width  = `${newW}px`;
+        widget.style.height = `${newH}px`;
+    });
+
+    document.addEventListener("mouseup", () => { resizing = false; });
+
+    widget.appendChild(handle);
 }
 
-// --- Analog clock ---
-function drawAnalogClock(canvas) {
-    const ctx = canvas.getContext('2d');
-    const radius = Math.min(canvas.width, canvas.height) / 2;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.translate(canvas.width/2, canvas.height/2);
+/* ---- Removing ---- */
+function addCloseButton(widget) {
+    const btn = document.createElement('span');
+    btn.classList.add('widget-close');
+    btn.innerHTML = '&times;';   // znak ×
 
-    ctx.beginPath();
-    ctx.arc(0, 0, radius-2, 0, 2*Math.PI);
-    ctx.fillStyle = 'white';
-    ctx.fill();
-    ctx.strokeStyle = '#34495e';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    /* Nie chcemy, aby kliknięcie na X wywołało drag/resize */
+    btn.addEventListener('click', e => {
+        e.stopPropagation();      // nie propaguj zdarzenia dalej
+        widget.remove();           // usuń cały element z DOM‑a
+    });
 
-    const now = new Date();
-    const sec = now.getSeconds();
-    const min = now.getMinutes();
-    const hr = now.getHours() % 12;
-
-    // Hour
-    ctx.save();
-    ctx.rotate((Math.PI/6)*hr + (Math.PI/360)*min + (Math.PI/21600)*sec);
-    ctx.beginPath();
-    ctx.moveTo(0,0);
-    ctx.lineTo(0, -radius/2);
-    ctx.strokeStyle = '#2c3e50';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-    ctx.restore();
-
-    // Minute
-    ctx.save();
-    ctx.rotate((Math.PI/30)*min + (Math.PI/1800)*sec);
-    ctx.beginPath();
-    ctx.moveTo(0,0);
-    ctx.lineTo(0, -radius*0.7);
-    ctx.strokeStyle = '#2c3e50';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.restore();
-
-    // Second
-    ctx.save();
-    ctx.rotate((Math.PI/30)*sec);
-    ctx.beginPath();
-    ctx.moveTo(0,0);
-    ctx.lineTo(0, -radius*0.9);
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.restore();
-
-    ctx.translate(-canvas.width/2, -canvas.height/2);
+    widget.appendChild(btn);
 }
+
+/* ---- Dragging inside workspace ---- */
+function enableDragging(widget) {
+    let dragging = false,
+        offsetX, offsetY;
+
+    widget.addEventListener("mousedown", e => {
+        if (e.target.classList.contains('resize-handle')) return;
+        dragging = true;
+        offsetX  = e.offsetX;
+        offsetY  = e.offsetY;
+    });
+
+    document.addEventListener("mousemove", e => {
+        if (!dragging) return;
+
+        const rect = workspace.getBoundingClientRect();
+        let x = e.clientX - rect.left - offsetX;
+        let y = e.clientY - rect.top - offsetY;
+
+        x = Math.round(x / GRID_SIZE) * GRID_SIZE;
+        y = Math.round(y / GRID_SIZE) * GRID_SIZE;
+
+        x = Math.max(0, Math.min(x, workspace.clientWidth  - widget.offsetWidth));
+        y = Math.max(0, Math.min(y, workspace.clientHeight - widget.offsetHeight));
+
+        widget.style.left = `${x}px`;
+        widget.style.top  = `${y}px`;
+    });
+
+    document.addEventListener("mouseup", () => { dragging = false; });
+}
+
+/* ---- Simple monthly calendar (unchanged) ---- */
+function generateCalendar(){
+    const now   = new Date();
+    const month = now.toLocaleString('pl-PL', {month:'long'});
+    const year  = now.getFullYear();
+    const today = now.getDate();                     // <-- nowy wiersz
+
+    let html=`<b>${month} ${year}</b><table><tr>`;
+
+    const days=['Pn','Wt','Śr','Cz','Pt','Sb','Nd'];
+    days.forEach(d=>html+=`<th>${d}</th>`);
+    html+="</tr><tr>";
+
+    const firstDay=(new Date(year,now.getMonth(),1).getDay()+6)%7;
+    for(let i=0;i<firstDay;i++)html+='<td></td>';
+
+    const lastDay=new Date(year,now.getMonth()+1,0).getDate();
+    for(let d=1;d<=lastDay;d++){
+        if(d===today) html+=`<td class="cal-today">${d}</td>`;
+        else          html+=`<td>${d}</td>`;
+        if((d+firstDay)%7===0)html+="</tr><tr>";
+    }
+
+    html+="</tr></table>";
+    return html;
+}
+

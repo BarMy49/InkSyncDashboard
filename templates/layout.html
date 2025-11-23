@@ -4,17 +4,19 @@
     {% include 'sidebar.html' with context %}
 
     <main class="content">
+
         <!-- Panel górny -->
-        <div id="toolbar">
-            <div class="widget-item" draggable="true" data-type="events">Lista Eventów</div>
-            <div class="widget-item" draggable="true" data-type="digitalClock">Zegar Cyfrowy</div>
-            <div class="widget-item" draggable="true" data-type="analogClock">Zegar Analogowy</div>
-            <div class="widget-item" draggable="true" data-type="text">Tekst</div>
-            <div class="widget-item" draggable="true" data-type="calendar">Kalendarz</div>
+        <div id="toolbar" class="layout-toolbar">
+            <div class="widget-item" draggable="true" data-type="events">Event List</div>
+            <div class="widget-item" draggable="true" data-type="digitalClock">Digital Clock</div>
+            <div class="widget-item" draggable="true" data-type="analogClock">Analog Clock</div>
+            <div class="widget-item" draggable="true" data-type="text">Text</div>
+            <div class="widget-item" draggable="true" data-type="calendar">Calendar</div>
         </div>
 
-        <!-- Workspace / dummy screen -->
-        <div id="workspace"></div>
+        <!-- Workspace -->
+        <div id="workspace" class="layout-workspace"></div>
+
     </main>
 </div>
 
