@@ -35,23 +35,15 @@ body {
     font-weight: bold;
     color: #fff;
     margin-bottom: 1.5em;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,.35));
 }
 
 .logo svg,
 .logo-img {
-    width: 160px;
+    width: 180px;
     height: auto;
     display: block;
 }
-
-/* (opcjonalnie) lekka responsywność dla bardzo wysokich ekranów */
-@media (min-height: 900px) {
-    .logo svg,
-    .logo-img {
-        width: 180px;
-    }
-}
-
 
 nav {
     display: flex;
@@ -975,3 +967,161 @@ nav {
     cursor: pointer;
 }
 .save-layout-btn:hover{background:#555;}
+
+
+/* ---- Automation ----- */
+.automation-wrapper {
+    padding: 20px;
+    width: 100%;
+}
+
+#automation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 20px;
+}
+
+.automation-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    border: 1px solid #dcdcdc;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.automation-card:hover {
+    transform: scale(1.01);
+}
+
+.auto-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.auto-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 22px;
+}
+
+.switch input { display: none; }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0;
+    right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 22px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px; width: 18px;
+    left: 2px; bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #6c4dfb;
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+/* flow graph */
+.auto-flow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.flow-item {
+    background: #f5f5f5;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.flow-arrow {
+    font-size: 18px;
+}
+
+/* popup */
+.popup {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hidden { display: none; }
+
+.popup-content {
+    width: 600px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+}
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+#popup-close {
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 0;
+}
+
+.editor-area h3 {
+    margin-top: 20px;
+    margin-bottom: 8px;
+}
+
+#add-block-btn {
+    margin-top: 10px;
+    padding: 8px 14px;
+    background: #6c4dfb;
+    border: none;
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+#editor-blocks, #editor-connections {
+    border: 1px solid #ccc;
+    padding: 12px;
+    border-radius: 8px;
+    min-height: 80px;
+    background: #fafafa;
+}
+
