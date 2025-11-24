@@ -4,74 +4,42 @@
     {% include 'sidebar.html' with context %}
 
     <main class="automation-wrapper">
-
+        <div class="automation-toolbar">
+            <button id="create-automation-btn" class="btn-primary">+ Nowa automacja</button>
+            <span id="automation-count"></span>
+        </div>
         <div id="automation-list">
-
-            <!-- Example block, dynamically generowany później -->
-            <div class="automation-card" data-id="1">
-                <div class="auto-header">
-                    <span class="auto-title">Light</span>
-                    <label class="switch">
-                        <input type="checkbox" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-
-                <div class="auto-flow">
-                    <div class="flow-item">Start</div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-item">Key 1 pressed</div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-item">Light on</div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-item">End</div>
-                </div>
-            </div>
-
-            <div class="automation-card" data-id="2">
-                <div class="auto-header">
-                    <span class="auto-title">3D Printer</span>
-                    <label class="switch">
-                        <input type="checkbox">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-
-                <div class="auto-flow">
-                    <div class="flow-item">Start</div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-item">Key 2 pressed</div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-item">send SSH command "poweroff"</div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-item">End</div>
-                </div>
-            </div>
-
+            <!-- ...dynamicznie generowane karty... -->
         </div>
     </main>
 </div>
 
-<!-- Popup -->
 <div id="automation-popup" class="popup hidden">
-    <div class="popup-content">
+    <div class="popup-content automation-editor">
         <div class="popup-header">
             <span id="popup-title">Automation Editor</span>
             <button id="popup-close">×</button>
         </div>
 
         <div class="editor-area">
-            <h3>Blocks</h3>
-            <div id="editor-blocks">
-                <!-- dynamicznie generowane bloki -->
+            <h3>Bloki</h3>
+            <div id="editor-blocks"><!-- dynamic --></div>
+
+            <div class="block-adder">
+                <select id="block-type-select">
+                    <option value="" disabled selected>Wybierz typ bloku</option>
+                    <option value="Send a key">Send a key</option>
+                    <option value="Send a command">Send a command</option>
+                    <option value="Timeout">Timeout</option>
+                    <option value="Key pressed">Key pressed</option>
+                </select>
+                <button id="add-block-btn">+ Dodaj blok</button>
             </div>
 
-            <button id="add-block-btn">+ Add block</button>
-
-            <h3>Connections</h3>
-            <div id="editor-connections">
-                <!-- placeholder -->
-                <p>Połączenia bloków pojawią się tutaj.</p>
+            <div class="editor-actions">
+                <button id="delete-automation-btn" class="btn-danger">Usuń automację</button>
+                <button id="save-automation-btn" class="btn-primary">Zapisz</button>
+                <button id="cancel-automation-btn" class="btn-secondary">Anuluj</button>
             </div>
         </div>
     </div>

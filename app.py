@@ -11,6 +11,7 @@ MODULES_DIR = 'modules'
 CONFIG_DIR  = "configs"
 EVENTS_DIR  = 'events'
 LAYOUT_DIR  = 'layout'        # <-- nowy katalog na layouty
+AUTOMATIONS_DIR = 'automations'  # <-- katalog na automacje
 
 
 integration_status = {
@@ -163,9 +164,37 @@ def save_layout():
     return jsonify({"status": "saved", "path": file_path})
 
 
+@app.get("/api/automations")
+def get_automations():
+    os.makedirs(AUTOMATIONS_DIR, exist_ok=True)
+    file_path = os.path.join(AUTOMATIONS_DIR, "automations.json")
+    if not os.path.exists(file_path):
+        return jsonify([])
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            return jsonify(json.load(f))
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+@app.post("/api/automations/save")
+def save_automations():
+    data = request.get_json()
+    if not isinstance(data, list):
+        return jsonify({"error": "Payload must be a list"}), 400
+    os.makedirs(AUTOMATIONS_DIR, exist_ok=True)
+    file_path = os.path.join(AUTOMATIONS_DIR, "automations.json")
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+    return jsonify({"status": "saved"})
+
+
 if __name__ == '__main__':
     os.makedirs(MODULES_DIR, exist_ok=True)
     os.makedirs(EVENTS_DIR, exist_ok=True)
     os.makedirs(CONFIG_DIR, exist_ok=True)
     os.makedirs(LAYOUT_DIR, exist_ok=True)
+    os.makedirs(AUTOMATIONS_DIR, exist_ok=True)
     app.run(debug=True)

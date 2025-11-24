@@ -1,0 +1,33 @@
+[
+  {
+    "id": "bbe9d234-24c1-4215-b4e2-486b404c4afc",
+    "name": "Automation 1",
+    "enabled": true,
+    "blocks": [
+      {
+        "id": "bc1c746d-030a-4141-afbb-9de40a9a774b",
+        "type": "Start",
+        "config": {}
+      },
+      {
+        "id": "f0677268-8165-4901-b5b1-156d77c06cd0",
+        "type": "Key pressed",
+        "config": {
+          "key": "KEY0"
+        }
+      },
+      {
+        "id": "ae726db4-bc2a-4aaa-a4c0-54497bab0ea3",
+        "type": "Send a key",
+        "config": {
+          "key": "Alt+F4"
+        }
+      },
+      {
+        "id": "6dc3ebec-3b1f-4319-b7c5-1bb4170b7622",
+        "type": "End",
+        "config": {}
+      }
+    ]
+  }
+]
