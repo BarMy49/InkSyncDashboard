@@ -1,7 +1,7 @@
 .idea
 .venv
-automations
-configs
-events
-layout
-modules
+automations/*
+configs/*
+events/*
+layout/*
+modules/*
