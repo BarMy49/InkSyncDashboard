@@ -525,19 +525,6 @@ nav {
     margin-bottom: 15px;
 }
 
-.popup-content label {
-    display: block;
-    margin-bottom: 10px;
-}
-
-.popup-content input[type="text"],
-.popup-content input[type="datetime-local"] {
-    width: 100%;
-    padding: 5px 8px;
-    margin-top: 4px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
 
 .popup-actions {
     margin-top: 15px;
@@ -559,23 +546,8 @@ nav {
 
 .popup-content label {
     display: flex;
-    justify-content: space-between; /* text left, input right */
-    align-items: center;
-    margin-bottom: 12px;
+    justify-content: space-between;
 }
-
-.popup-content label input[type="text"],
-.popup-content label input[type="date"],
-.popup-content label input[type="datetime-local"] {
-    width: 150px;
-    height: 25px;
-}
-
-.popup-content label input[type="checkbox"] {
-    width: auto;
-    height: auto;
-}
-
 
 /* Card component (used by calendar & event list) */
 .card {

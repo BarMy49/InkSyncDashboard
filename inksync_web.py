@@ -197,4 +197,4 @@ if __name__ == '__main__':
     os.makedirs(CONFIG_DIR, exist_ok=True)
     os.makedirs(LAYOUT_DIR, exist_ok=True)
     os.makedirs(AUTOMATIONS_DIR, exist_ok=True)
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')

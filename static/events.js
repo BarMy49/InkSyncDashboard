@@ -131,8 +131,19 @@ function openAddEventPopup(defaultDate = "") {
             <label>Name: <input type="text" id="event-name"></label>
             <label>Location: <input type="text" id="event-location"></label>
             <label>All Day: <input type="checkbox" id="event-allday"></label>
-            <label>Start: <input type="datetime-local" id="event-start" value="${defaultDate ? defaultDate + 'T00:00' : ''}"></label>
-            <label>End: <input type="datetime-local" id="event-end" value="${defaultDate ? defaultDate + 'T23:59' : ''}"></label>
+            <label>Start:
+                <div>
+                    <input type="time" id="event-start-time">
+                    <input type="date" id="event-start-date" value="${defaultDate}">
+                </div>
+            </label>
+            <label>End:
+                <div>
+                    <input type="time" id="event-end-time">
+                    <input type="date" id="event-end-date" value="${defaultDate}">
+                </div>
+            </label>
+            
 
             <div class="popup-actions">
                 <button id="save-event-btn">Save</button>
@@ -142,56 +153,62 @@ function openAddEventPopup(defaultDate = "") {
     `;
     document.body.appendChild(popup);
 
-    const startInput = document.getElementById("event-start");
-    const endInput = document.getElementById("event-end");
+    const startTimeInput = document.getElementById("event-start-time");
+    const endTimeInput = document.getElementById("event-end-time");
     const allDayCheckbox = document.getElementById("event-allday");
 
     allDayCheckbox.addEventListener("change", () => {
         if (allDayCheckbox.checked) {
-            startInput.type = "date";
-            endInput.type = "date";
+            startTimeInput.style.display = "none";
+            endTimeInput.style.display = "none";
         } else {
-            startInput.type = "datetime-local";
-            endInput.type = "datetime-local";
+            startTimeInput.style.display = "inline-block";
+            endTimeInput.style.display = "inline-block";
         }
     });
 
     document.getElementById("cancel-event-btn").onclick = () => popup.remove();
 
     document.getElementById("save-event-btn").onclick = () => {
-        const name = document.getElementById("event-name").value.trim();
-        const location = document.getElementById("event-location").value.trim();
-        const start = startInput.value;
-        const end = endInput.value;
-        const allDay = allDayCheckbox.checked;
+            const name = document.getElementById("event-name").value.trim();
+            const location = document.getElementById("event-location").value.trim();
+            const startDate = document.getElementById("event-start-date").value;
+            const endDate = document.getElementById("event-end-date").value;
+            const startTime = startTimeInput.value;
+            const endTime = endTimeInput.value;
+            const allDay = allDayCheckbox.checked;
 
-        if (!name || !location || !start || !end) {
-            alert("Please fill all fields.");
-            return;
-        }
-        if (!allDay && new Date(start) > new Date(end)) {
-            alert("Start date/time cannot be after end date/time.");
-            return;
-        }
+            if (!name || !location || !startDate || !endDate || (!allDay && (!startTime || !endTime))) {
+                alert("Please fill all fields.");
+                return;
+            }
 
-        const newEvent = {
-            id: crypto.randomUUID(),
-            name,
-            location,
-            start,
-            end,
-            allDay
+            const start = allDay ? startDate : `${startDate}T${startTime}`;
+            const end = allDay ? endDate : `${endDate}T${endTime}`;
+
+            if (!allDay && new Date(start) > new Date(end)) {
+                alert("Start date/time cannot be after end date/time.");
+                return;
+            }
+
+            const newEvent = {
+                id: crypto.randomUUID(),
+                name,
+                location,
+                start,
+                end,
+                allDay
+            };
+
+            events.push(newEvent);
+            renderEventList();
+
+            fetch("/api/save/events", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(events)
+            }).catch(err => console.error("Error saving events:", err));
+
+            popup.remove();
         };
-
-        events.push(newEvent);
-        renderEventList();
-
-        fetch("/api/save/events", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(events)
-        }).catch(err => console.error("Error saving events:", err));
-
-        popup.remove();
-    };
 }
