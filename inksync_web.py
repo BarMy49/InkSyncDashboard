@@ -1,4 +1,3 @@
-# ... istniejące importy ...
 import json
 from flask import Flask, render_template, jsonify, request
 import os
